@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}-redis
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+        - name: redis
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 6379
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+            - name: redis-config-volume
+              mountPath: /usr/local/etc/redis/redis.conf
+              subPath: redis.conf
+          securityContext:
+            {{- if .Values.containerSecurityContext.enabled }}
+            runAsUser: {{ .Values.containerSecurityContext.runAsUser }}
+            privileged: {{ .Values.containerSecurityContext.privileged }}
+            seLinuxOptions:
+              {{- toYaml .Values.containerSecurityContext.seLinuxOptions | nindent 14 }}
+            {{- end }}
+      volumes:
+        - name: redis-data
+          persistentVolumeClaim:
+            claimName: redis-pvc
+        - name: redis-config-volume
+          configMap:
+            name: redis-config

@@ -1,0 +1,28 @@
+# Значения по умолчанию для кластера Redis
+namespace: redis-ns  # Пространство имен Kubernetes для развертывания
+replicaCount: 3  # Количество реплик Redis в кластере
+image:
+  repository: redis  # Имя образа Redis
+  tag: "6.2"  # Версия образа Redis
+  pullPolicy: IfNotPresent  # Политика загрузки образа
+service:
+  type: ClusterIP  # Тип сервиса Kubernetes
+  port: 6379  # Порт Redis
+resources:
+  limits:
+    cpu: 500m  # Максимальное использование CPU
+    memory: 512Mi  # Максимальное использование памяти
+  requests:
+    cpu: 250m  # Минимальное использование CPU
+    memory: 256Mi  # Минимальное использование памяти
+persistence:
+  enabled: true  # Включить постоянное хранилище
+  storageClass: "standard"  # Класс хранения (если пусто, Helm создаст его автоматически)
+  accessModes:
+    - ReadWriteOnce  # Режим доступа к хранилищу
+  size: 8Gi  # Размер хранилища
+containerSecurityContext:
+  enabled: true  # Включить контекст безопасности контейнера
+  runAsUser: 0  # Пользователь, от имени которого запускается контейнер
+  privileged: true  # Запуск контейнера с привилегиями
+  seLinuxOptions: {}  # Опции SELinux (пусто по умолчанию)
